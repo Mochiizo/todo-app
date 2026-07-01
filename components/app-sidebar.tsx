@@ -4,6 +4,7 @@ import {
   Plus,
   History,
   CheckSquare,
+  LogOut,
 } from "lucide-react";
 
 import {
@@ -15,6 +16,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
 
 import { usePathname, useRouter } from "next/navigation";
 
@@ -40,8 +42,14 @@ export default function AppSidebar() {
   const router = useRouter();
   const pathname = usePathname();
 
+  const handleLogout = async () => {
+    await fetch("/api/logout", { method: "POST" });
+    router.push("/login");
+    router.refresh();
+  };
+
   return (
-    <Sidebar className="bg-[#0b1b3a] text-white border-r border-white/10">
+    <Sidebar className="border-r border-white/10">
 
       {/* Header */}
       <SidebarHeader className="p-6">
@@ -93,9 +101,14 @@ export default function AppSidebar() {
 
       {/* Footer */}
       <SidebarFooter className="p-6 mt-auto border-t border-white/10">
-        <p className="text-sm text-white/50">
-          Données stockées localement
-        </p>
+        <Button
+          onClick={handleLogout}
+          variant="ghost"
+          className="w-full justify-start gap-3 text-white/70 hover:bg-white/10 hover:text-white"
+        >
+          <LogOut className="h-4 w-4" />
+          Se déconnecter
+        </Button>
       </SidebarFooter>
     </Sidebar>
   );
