@@ -1,65 +1,158 @@
-import Image from "next/image";
+import Link from "next/link";
 
-export default function Home() {
+import { prisma } from "@/lib/prisma";
+import { todayISO, toISODate } from "@/lib/date";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import TaskItem from "@/components/task-item";
+import {
+  ListTodo,
+  CheckCircle2,
+  TrendingUp,
+  CalendarDays,
+  Plus,
+} from "lucide-react";
+
+export default async function Home() {
+  const today = todayISO();
+  const lists = await prisma.taskList.findMany({
+    include: { tasks: true },
+    orderBy: { date: "desc" },
+  });
+
+  const allTasks = lists.flatMap((l) => l.tasks);
+  const done = allTasks.filter((t) => t.isDone).length;
+  const total = allTasks.length;
+  const rate = total ? Math.round((done / total) * 100) : 0;
+
+  const todayLists = lists.filter((l) => toISODate(l.date) === today);
+  const pendingToday = todayLists
+    .flatMap((l) => l.tasks)
+    .filter((t) => !t.isDone).length;
+
+  const formattedDate = new Date().toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="min-h-screen bg-[#0b1b3a] text-white p-8 space-y-8">
+      {/* HEADER */}
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-white/60 text-sm">{formattedDate}</p>
+          <h1 className="mt-1 text-4xl font-semibold">Bonjour 👋</h1>
+        </div>
+
+        <Button asChild className="bg-[#b57edc] hover:bg-[#9b5fc9] text-white">
+          <Link href="/new-list">
+            <Plus className="mr-2 h-4 w-4" />
+            Nouvelle liste
+          </Link>
+        </Button>
+      </div>
+
+      {/* STATS */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <StatCard icon={<ListTodo />} label="Listes" value={lists.length} />
+        <StatCard
+          icon={<CheckCircle2 />}
+          label="Tâches faites"
+          value={`${done}/${total}`}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+        <StatCard icon={<TrendingUp />} label="Efficacité" value={`${rate}%`} />
+        <StatCard
+          icon={<CalendarDays />}
+          label="À venir aujourd'hui"
+          value={pendingToday}
+        />
+      </div>
+
+      {/* PROGRESS */}
+      <Card className="bg-white text-[#0b1b3a] border-none">
+        <CardHeader>
+          <CardTitle>Progression globale</CardTitle>
+        </CardHeader>
+
+        <CardContent>
+          <Progress value={rate} className="bg-[#e9ddf7]" />
+
+          <p className="mt-2 text-sm text-gray-500">
+            {done} tâches complétées sur {total}
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+        </CardContent>
+      </Card>
+
+      {/* TODAY LISTS */}
+      <div>
+        <h2 className="mb-4 text-2xl font-semibold">Aujourd’hui</h2>
+
+        {todayLists.length === 0 ? (
+          <Card className="bg-white text-[#0b1b3a] border-none">
+            <CardContent className="py-10 text-center text-gray-500">
+              Aucune tâche aujourd&apos;hui.
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {todayLists.map((list) => (
+              <Card
+                key={list.id}
+                className="bg-white text-[#0b1b3a] border-none"
+              >
+                <CardHeader className="flex justify-between items-center">
+                  <CardTitle className="text-base">{list.title}</CardTitle>
+
+                  <Button asChild variant="ghost" size="sm">
+                    <Link href={`/list/${list.id}`}>Ouvrir</Link>
+                  </Button>
+                </CardHeader>
+
+                <CardContent className="space-y-2">
+                  {list.tasks.map((task) => (
+                    <TaskItem
+                      key={task.id}
+                      id={task.id}
+                      title={task.title}
+                      description={task.description}
+                      initialDone={task.isDone}
+                    />
+                  ))}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
+  );
+}
+
+/* STAT CARD */
+function StatCard({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <Card className="bg-white text-[#0b1b3a] border-none">
+      <CardContent className="py-5">
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          {icon}
+          {label}
+        </div>
+
+        <div className="mt-2 text-3xl font-semibold text-[#0b1b3a]">
+          {value}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

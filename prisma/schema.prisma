@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model TaskList {
+  id        Int      @id @default(autoincrement())
+  title     String
+  date      DateTime @db.Date
+  createdAt DateTime @default(now()) @map("created_at")
+  tasks     Task[]
+
+  @@map("task_lists")
+}
+
+model Task {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  isDone      Boolean  @default(false) @map("is_done")
+  taskListId  Int      @map("task_list_id")
+  taskList    TaskList @relation(fields: [taskListId], references: [id], onDelete: Cascade)
+
+  @@map("tasks")
+}
