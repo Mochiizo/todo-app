@@ -1,50 +1,46 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import NextAuth from "next-auth";
+import Google from "next-auth/providers/google";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
-export const SESSION_COOKIE_NAME = "session";
-const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
-export const SESSION_MAX_AGE_SECONDS = SESSION_DURATION_MS / 1000;
+const PUBLIC_PATHS = ["/login"];
 
-function getSecret(): string {
-  const secret = process.env.SESSION_SECRET;
-  if (!secret) {
-    throw new Error("SESSION_SECRET n'est pas défini.");
-  }
-  return secret;
-}
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  adapter: PrismaAdapter(prisma),
+  providers: [Google],
+  session: { strategy: "database" },
+  pages: { signIn: "/login" },
+  callbacks: {
+    session({ session, user }) {
+      session.user.id = user.id;
+      return session;
+    },
+    authorized({ request, auth }) {
+      const { pathname } = request.nextUrl;
+      const isPublic =
+        PUBLIC_PATHS.includes(pathname) || pathname.startsWith("/api/auth");
 
-function sign(value: string): string {
-  return createHmac("sha256", getSecret()).update(value).digest("hex");
-}
+      if (!auth?.user && !isPublic) {
+        if (pathname.startsWith("/api/")) {
+          return NextResponse.json(
+            { error: "Non authentifié." },
+            { status: 401 }
+          );
+        }
+        return NextResponse.redirect(new URL("/login", request.url));
+      }
 
-export function createSessionToken(): string {
-  const expiresAt = Date.now() + SESSION_DURATION_MS;
-  return `${expiresAt}.${sign(String(expiresAt))}`;
-}
+      if (auth?.user && pathname === "/login") {
+        return NextResponse.redirect(new URL("/", request.url));
+      }
 
-export function verifySessionToken(token: string | undefined | null): boolean {
-  if (!token) return false;
+      return true;
+    },
+  },
+});
 
-  const [expiresAtRaw, signature] = token.split(".");
-  if (!expiresAtRaw || !signature) return false;
-
-  const expected = sign(expiresAtRaw);
-  const a = Buffer.from(signature);
-  const b = Buffer.from(expected);
-
-  if (a.length !== b.length || !timingSafeEqual(a, b)) {
-    return false;
-  }
-
-  const expiresAt = Number(expiresAtRaw);
-  return Number.isFinite(expiresAt) && expiresAt > Date.now();
-}
-
-export function verifyPassword(password: string): boolean {
-  const expected = process.env.APP_PASSWORD;
-  if (!expected) return false;
-
-  const a = Buffer.from(password);
-  const b = Buffer.from(expected);
-
-  return a.length === b.length && timingSafeEqual(a, b);
+export async function getCurrentUserId(): Promise<string | null> {
+  const session = await auth();
+  return session?.user?.id ?? null;
 }
