@@ -1,9 +1,17 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { ArrowLeft, CheckSquare } from "lucide-react";
+import { notFound, redirect } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
+import { getCurrentUserId } from "@/lib/auth";
 import { formatDateFr } from "@/lib/date";
+import { sortByPriority } from "@/lib/priority";
+import {
+  getAppointmentDateTime,
+  getAppointmentStatus,
+  APPOINTMENT_STATUS_LABELS,
+  APPOINTMENT_STATUS_COLORS,
+} from "@/lib/appointments";
 import {
   Card,
   CardHeader,
@@ -11,16 +19,26 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import TaskItem from "@/components/task-item";
 import DeleteTaskButton from "@/components/delete-task-button";
 import PrintButton from "@/components/print-button";
+import ListNoteEditor from "@/components/list-note-editor";
+import AddAppointmentForm from "@/components/add-appointment-form";
+import DeleteAppointmentButton from "@/components/delete-appointment-button";
+import ListPreviewTemplate from "@/components/list-preview-template";
 
 export default async function ListDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    redirect("/login");
+  }
+
   const { id } = await params;
   const listId = Number(id);
 
@@ -28,9 +46,12 @@ export default async function ListDetailPage({
     notFound();
   }
 
-  const list = await prisma.taskList.findUnique({
-    where: { id: listId },
-    include: { tasks: true },
+  const list = await prisma.taskList.findFirst({
+    where: { id: listId, userId },
+    include: {
+      tasks: true,
+      appointments: { orderBy: { time: "asc" } },
+    },
   });
 
   if (!list) {
@@ -39,6 +60,7 @@ export default async function ListDetailPage({
 
   const done = list.tasks.filter((t) => t.isDone).length;
   const total = list.tasks.length;
+  const sortedTasks = sortByPriority(list.tasks);
 
   return (
     <>
@@ -91,13 +113,14 @@ export default async function ListDetailPage({
                 Aucune tâche dans cette liste.
               </p>
             ) : (
-              list.tasks.map((task) => (
+              sortedTasks.map((task) => (
                 <div key={task.id} className="flex items-center gap-2">
                   <TaskItem
                     id={task.id}
                     title={task.title}
                     description={task.description}
                     initialDone={task.isDone}
+                    initialPriority={task.priority}
                     className="flex-1"
                   />
                   <DeleteTaskButton taskId={task.id} />
@@ -106,51 +129,104 @@ export default async function ListDetailPage({
             )}
           </CardContent>
         </Card>
+
+        <Card className="bg-white text-[#0b1b3a] border-none">
+          <CardHeader>
+            <CardTitle>Bloc-notes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ListNoteEditor
+              listId={list.id}
+              initialNote={list.note}
+              initialPinned={list.notePinned}
+              initialUpdatedAt={
+                list.noteUpdatedAt ? list.noteUpdatedAt.toISOString() : null
+              }
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white text-[#0b1b3a] border-none">
+          <CardHeader>
+            <CardTitle>Rendez-vous</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {list.appointments.length === 0 ? (
+              <p className="py-4 text-center text-gray-500">
+                Aucun rendez-vous pour cette liste.
+              </p>
+            ) : (
+              list.appointments.map((appointment) => {
+                const status = getAppointmentStatus(
+                  getAppointmentDateTime(list.date, appointment.time),
+                  appointment.durationMinutes
+                );
+
+                return (
+                  <div
+                    key={appointment.id}
+                    className="flex items-start gap-3 rounded-md border border-gray-100 p-3"
+                  >
+                    <div className="w-14 shrink-0 pt-0.5 text-sm font-semibold text-gray-500">
+                      {appointment.time}
+                    </div>
+
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium">
+                          {appointment.clientFirstName}{" "}
+                          {appointment.clientLastName}
+                        </p>
+                        <Badge
+                          variant="outline"
+                          className={APPOINTMENT_STATUS_COLORS[status]}
+                        >
+                          {APPOINTMENT_STATUS_LABELS[status]}
+                        </Badge>
+                      </div>
+                      {appointment.description && (
+                        <p className="text-sm text-gray-500">
+                          {appointment.description}
+                        </p>
+                      )}
+                    </div>
+
+                    <DeleteAppointmentButton appointmentId={appointment.id} />
+                  </div>
+                );
+              })
+            )}
+
+            <AddAppointmentForm listId={list.id} />
+          </CardContent>
+        </Card>
       </div>
 
       {/* Print view */}
-      <div className="hidden print:block p-10 text-[#0b1b3a]">
-        <div className="flex items-center gap-3 border-b-2 border-[#b57edc] pb-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#b57edc] text-white">
-            <CheckSquare className="h-6 w-6" />
-          </div>
-          <div>
-            <p className="text-lg font-bold">Tâchable</p>
-            <p className="text-sm text-gray-500">Liste de tâches</p>
-          </div>
-        </div>
-
-        <div className="mt-6">
-          <h1 className="text-2xl font-bold">{list.title}</h1>
-          <p className="mt-1 capitalize text-gray-600">
-            {formatDateFr(list.date)}
-          </p>
-          <p className="mt-1 text-sm text-gray-500">
-            {done}/{total} tâches complétées
-          </p>
-        </div>
-
-        <ul className="mt-8 space-y-3">
-          {list.tasks.map((task) => (
-            <li key={task.id} className="flex items-start gap-3 break-inside-avoid">
-              <span
-                className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 border-[#b57edc] text-xs font-bold ${
-                  task.isDone ? "bg-[#b57edc] text-white" : "text-transparent"
-                }`}
-              >
-                ✓
-              </span>
-              <div>
-                <p className={task.isDone ? "line-through text-gray-400" : ""}>
-                  {task.title}
-                </p>
-                {task.description && (
-                  <p className="text-sm text-gray-500">{task.description}</p>
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
+      <div className="hidden print:block">
+        <ListPreviewTemplate
+          title={list.title}
+          formattedDate={formatDateFr(list.date)}
+          note={list.note}
+          tasks={sortedTasks.map((task) => ({
+            id: task.id,
+            title: task.title,
+            description: task.description,
+            priority: task.priority,
+            isDone: task.isDone,
+          }))}
+          appointments={list.appointments.map((appointment) => ({
+            id: appointment.id,
+            clientFirstName: appointment.clientFirstName,
+            clientLastName: appointment.clientLastName,
+            time: appointment.time,
+            description: appointment.description,
+            status: getAppointmentStatus(
+              getAppointmentDateTime(list.date, appointment.time),
+              appointment.durationMinutes
+            ),
+          }))}
+        />
       </div>
     </>
   );

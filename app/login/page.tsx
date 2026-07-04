@@ -1,11 +1,6 @@
-"use client";
-
-import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { signIn } from "@/lib/auth";
 import { CheckSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -14,33 +9,6 @@ import {
 } from "@/components/ui/card";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [password, setPassword] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!password) return;
-
-    setSubmitting(true);
-
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
-    });
-
-    setSubmitting(false);
-
-    if (!res.ok) {
-      toast.error("Mot de passe incorrect.");
-      return;
-    }
-
-    router.push("/");
-    router.refresh();
-  };
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#0b1b3a] p-8">
       <Card className="w-full max-w-sm border-none bg-white text-[#0b1b3a]">
@@ -55,27 +23,17 @@ export default function LoginPage() {
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium" htmlFor="password">
-                Mot de passe
-              </label>
-              <Input
-                id="password"
-                type="password"
-                autoFocus
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="border-[#b57edc] focus:ring-[#b57edc]"
-              />
-            </div>
-
+          <form
+            action={async () => {
+              "use server";
+              await signIn("google", { redirectTo: "/" });
+            }}
+          >
             <Button
               type="submit"
-              disabled={!password || submitting}
-              className="w-full bg-[#b57edc] hover:bg-[#9b5fc9] text-white disabled:opacity-50"
+              className="w-full bg-[#b57edc] hover:bg-[#9b5fc9] text-white"
             >
-              {submitting ? "Connexion..." : "Se connecter"}
+              Se connecter avec Google
             </Button>
           </form>
         </CardContent>

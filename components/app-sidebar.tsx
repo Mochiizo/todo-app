@@ -6,6 +6,7 @@ import {
   CheckSquare,
   LogOut,
 } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 import {
   Sidebar,
@@ -42,10 +43,8 @@ export default function AppSidebar() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const handleLogout = async () => {
-    await fetch("/api/logout", { method: "POST" });
-    router.push("/login");
-    router.refresh();
+  const handleLogout = () => {
+    signOut({ redirectTo: "/login" });
   };
 
   return (

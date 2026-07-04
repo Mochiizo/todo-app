@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
+import { getCurrentUserId } from "@/lib/auth";
 import { formatDateFr } from "@/lib/date";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +10,13 @@ import { Progress } from "@/components/ui/progress";
 import DeleteListButton from "@/components/delete-list-button";
 
 export default async function HistoryPage() {
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    redirect("/login");
+  }
+
   const lists = await prisma.taskList.findMany({
+    where: { userId },
     include: { tasks: true },
     orderBy: { date: "desc" },
   });
