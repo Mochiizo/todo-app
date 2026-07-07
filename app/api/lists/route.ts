@@ -54,7 +54,6 @@ export async function POST(request: Request) {
   const appointments = Array.isArray(body?.appointments)
     ? body.appointments
         .filter(
-<<<<<<< HEAD
           (a: {
             clientLastName?: string;
             clientFirstName?: string;
@@ -64,16 +63,10 @@ export async function POST(request: Request) {
             a?.clientLastName?.trim() &&
             a?.clientFirstName?.trim() &&
             a?.formation?.trim() &&
-=======
-          (a: { clientFirstName?: string; clientLastName?: string; time?: string }) =>
-            a?.clientFirstName?.trim() &&
-            a?.clientLastName?.trim() &&
->>>>>>> 36e9a0623db006bf4bd3336ac224cca748246e2a
             a?.time?.trim()
         )
         .map(
           (a: {
-<<<<<<< HEAD
             clientLastName: string;
             clientFirstName: string;
             formation: string;
@@ -83,15 +76,6 @@ export async function POST(request: Request) {
             clientLastName: a.clientLastName.trim(),
             clientFirstName: a.clientFirstName.trim(),
             formation: a.formation.trim(),
-=======
-            clientFirstName: string;
-            clientLastName: string;
-            time: string;
-            description?: string;
-          }) => ({
-            clientFirstName: a.clientFirstName.trim(),
-            clientLastName: a.clientLastName.trim(),
->>>>>>> 36e9a0623db006bf4bd3336ac224cca748246e2a
             time: a.time.trim(),
             description: a.description?.trim() || null,
           })
