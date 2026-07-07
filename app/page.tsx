@@ -243,7 +243,7 @@ export default async function Home() {
             {notesList.map((list) => (
               <Card
                 key={list.id}
-                className="bg-white text-[#0b1b3a] border-none"
+                className="h-fit min-w-0 bg-white text-[#0b1b3a] border-none"
               >
                 <CardHeader className="flex flex-row items-start justify-between gap-2">
                   <Link
@@ -255,7 +255,7 @@ export default async function Home() {
                   <NoteCardActions listId={list.id} pinned={list.notePinned} />
                 </CardHeader>
                 <CardContent>
-                  <p className="line-clamp-4 text-sm whitespace-pre-wrap text-gray-600">
+                  <p className="text-sm whitespace-pre-wrap break-words text-gray-600">
                     {list.note}
                   </p>
                   {list.noteUpdatedAt && (
