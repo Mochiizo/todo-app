@@ -157,8 +157,13 @@ export default async function Home() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <p className="font-medium">
+<<<<<<< HEAD
                           {appointment.clientLastName}{" "}
                           {appointment.clientFirstName}
+=======
+                          {appointment.clientFirstName}{" "}
+                          {appointment.clientLastName}
+>>>>>>> 36e9a0623db006bf4bd3336ac224cca748246e2a
                         </p>
                         <Badge
                           variant="outline"
@@ -167,9 +172,12 @@ export default async function Home() {
                           {APPOINTMENT_STATUS_LABELS[status]}
                         </Badge>
                       </div>
+<<<<<<< HEAD
                       <p className="text-sm text-gray-500">
                         {appointment.formation}
                       </p>
+=======
+>>>>>>> 36e9a0623db006bf4bd3336ac224cca748246e2a
                       <p className="text-xs text-gray-400">
                         {appointment.taskList.title}
                       </p>

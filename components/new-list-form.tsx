@@ -20,9 +20,14 @@ type TaskDraft = {
   carriedOver?: boolean;
 };
 type AppointmentDraft = {
+<<<<<<< HEAD
   lastName: string;
   firstName: string;
   formation: string;
+=======
+  firstName: string;
+  lastName: string;
+>>>>>>> 36e9a0623db006bf4bd3336ac224cca748246e2a
   time: string;
   description: string;
 };
@@ -71,7 +76,11 @@ export default function NewListForm({
   const addAppointment = () => {
     setAppointments([
       ...appointments,
+<<<<<<< HEAD
       { lastName: "", firstName: "", formation: "", time: "", description: "" },
+=======
+      { firstName: "", lastName: "", time: "", description: "" },
+>>>>>>> 36e9a0623db006bf4bd3336ac224cca748246e2a
     ]);
   };
 
@@ -124,6 +133,7 @@ export default function NewListForm({
             priority: t.priority,
           })),
         appointments: appointments
+<<<<<<< HEAD
           .filter(
             (a) =>
               a.lastName.trim() && a.firstName.trim() && a.formation.trim() && a.time
@@ -132,6 +142,12 @@ export default function NewListForm({
             clientLastName: a.lastName.trim(),
             clientFirstName: a.firstName.trim(),
             formation: a.formation.trim(),
+=======
+          .filter((a) => a.firstName.trim() && a.lastName.trim() && a.time)
+          .map((a) => ({
+            clientFirstName: a.firstName.trim(),
+            clientLastName: a.lastName.trim(),
+>>>>>>> 36e9a0623db006bf4bd3336ac224cca748246e2a
             time: a.time,
             description: a.description.trim(),
           })),
@@ -159,6 +175,7 @@ export default function NewListForm({
     }));
 
   const previewAppointments = appointments
+<<<<<<< HEAD
     .filter(
       (a) => a.lastName.trim() && a.firstName.trim() && a.formation.trim() && a.time
     )
@@ -167,6 +184,13 @@ export default function NewListForm({
       clientLastName: a.lastName,
       clientFirstName: a.firstName,
       formation: a.formation,
+=======
+    .filter((a) => a.firstName.trim() && a.lastName.trim() && a.time)
+    .map((a, index) => ({
+      id: index,
+      clientFirstName: a.firstName,
+      clientLastName: a.lastName,
+>>>>>>> 36e9a0623db006bf4bd3336ac224cca748246e2a
       time: a.time,
       description: a.description,
     }));
@@ -344,6 +368,7 @@ export default function NewListForm({
                       </button>
                     </div>
 
+<<<<<<< HEAD
                     <div className="grid gap-3 sm:grid-cols-2">
                       <Input
                         placeholder="Nom du client"
@@ -353,6 +378,9 @@ export default function NewListForm({
                         }
                         className="border-[#b57edc] focus:ring-[#b57edc]"
                       />
+=======
+                    <div className="grid gap-3 sm:grid-cols-3">
+>>>>>>> 36e9a0623db006bf4bd3336ac224cca748246e2a
                       <Input
                         placeholder="Prénom du client"
                         value={appointment.firstName}
@@ -362,10 +390,17 @@ export default function NewListForm({
                         className="border-[#b57edc] focus:ring-[#b57edc]"
                       />
                       <Input
+<<<<<<< HEAD
                         placeholder="Formation"
                         value={appointment.formation}
                         onChange={(e) =>
                           updateAppointment(index, "formation", e.target.value)
+=======
+                        placeholder="Nom du client"
+                        value={appointment.lastName}
+                        onChange={(e) =>
+                          updateAppointment(index, "lastName", e.target.value)
+>>>>>>> 36e9a0623db006bf4bd3336ac224cca748246e2a
                         }
                         className="border-[#b57edc] focus:ring-[#b57edc]"
                       />

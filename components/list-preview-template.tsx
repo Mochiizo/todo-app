@@ -13,9 +13,14 @@ export type PreviewTask = {
 
 export type PreviewAppointment = {
   id: string | number;
+<<<<<<< HEAD
   clientLastName: string;
   clientFirstName: string;
   formation: string;
+=======
+  clientFirstName: string;
+  clientLastName: string;
+>>>>>>> 36e9a0623db006bf4bd3336ac224cca748246e2a
   time: string;
   description?: string | null;
   status?: AppointmentStatus;
@@ -142,17 +147,25 @@ export default function ListPreviewTemplate({
                 </span>
                 <div className="flex-1">
                   <p className="text-lg font-medium">
+<<<<<<< HEAD
                     {appointment.clientLastName}{" "}
                     {appointment.clientFirstName}{" "}
+=======
+                    {appointment.clientFirstName}{" "}
+                    {appointment.clientLastName}{" "}
+>>>>>>> 36e9a0623db006bf4bd3336ac224cca748246e2a
                     {appointment.status && (
                       <span className="text-sm font-normal text-gray-400">
                         ({APPOINTMENT_STATUS_LABELS[appointment.status]})
                       </span>
                     )}
                   </p>
+<<<<<<< HEAD
                   <p className="text-sm text-gray-500">
                     {appointment.formation}
                   </p>
+=======
+>>>>>>> 36e9a0623db006bf4bd3336ac224cca748246e2a
                   {appointment.description && (
                     <p className="text-sm text-gray-500">
                       {appointment.description}

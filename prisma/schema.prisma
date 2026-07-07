@@ -94,9 +94,14 @@ model Task {
 
 model Appointment {
   id              Int      @id @default(autoincrement())
+<<<<<<< HEAD
   clientLastName  String   @map("client_last_name")
   clientFirstName String   @map("client_first_name")
   formation       String
+=======
+  clientFirstName String   @map("client_first_name")
+  clientLastName  String   @map("client_last_name")
+>>>>>>> 36e9a0623db006bf4bd3336ac224cca748246e2a
   time            String
   description     String?
   durationMinutes Int      @default(60) @map("duration_minutes")

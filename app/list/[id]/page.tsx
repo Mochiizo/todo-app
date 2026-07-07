@@ -26,7 +26,10 @@ import DeleteTaskButton from "@/components/delete-task-button";
 import PrintButton from "@/components/print-button";
 import ListNoteEditor from "@/components/list-note-editor";
 import AddAppointmentForm from "@/components/add-appointment-form";
+<<<<<<< HEAD
 import AddTaskForm from "@/components/add-task-form";
+=======
+>>>>>>> 36e9a0623db006bf4bd3336ac224cca748246e2a
 import DeleteAppointmentButton from "@/components/delete-appointment-button";
 import ListPreviewTemplate from "@/components/list-preview-template";
 
@@ -161,6 +164,7 @@ export default async function ListDetailPage({
                 Aucun rendez-vous pour cette liste.
               </p>
             ) : (
+<<<<<<< HEAD
               list.appointments.map((appointment) => {
                 const status = getAppointmentStatus(
                   getAppointmentDateTime(list.date, appointment.time),
@@ -203,6 +207,92 @@ export default async function ListDetailPage({
                   </div>
                 );
               })
+=======
+              sortedTasks.map((task) => (
+                <div key={task.id} className="flex items-center gap-2">
+                  <TaskItem
+                    id={task.id}
+                    title={task.title}
+                    description={task.description}
+                    initialDone={task.isDone}
+                    initialPriority={task.priority}
+                    className="flex-1"
+                  />
+                  <DeleteTaskButton taskId={task.id} />
+                </div>
+              ))
+>>>>>>> 36e9a0623db006bf4bd3336ac224cca748246e2a
+            )}
+
+            <AddAppointmentForm listId={list.id} />
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white text-[#0b1b3a] border-none">
+          <CardHeader>
+            <CardTitle>Bloc-notes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ListNoteEditor
+              listId={list.id}
+              initialNote={list.note}
+              initialPinned={list.notePinned}
+              initialUpdatedAt={
+                list.noteUpdatedAt ? list.noteUpdatedAt.toISOString() : null
+              }
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white text-[#0b1b3a] border-none">
+          <CardHeader>
+            <CardTitle>Rendez-vous</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {list.appointments.length === 0 ? (
+              <p className="py-4 text-center text-gray-500">
+                Aucun rendez-vous pour cette liste.
+              </p>
+            ) : (
+              list.appointments.map((appointment) => {
+                const status = getAppointmentStatus(
+                  getAppointmentDateTime(list.date, appointment.time),
+                  appointment.durationMinutes
+                );
+
+                return (
+                  <div
+                    key={appointment.id}
+                    className="flex items-start gap-3 rounded-md border border-gray-100 p-3"
+                  >
+                    <div className="w-14 shrink-0 pt-0.5 text-sm font-semibold text-gray-500">
+                      {appointment.time}
+                    </div>
+
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium">
+                          {appointment.clientFirstName}{" "}
+                          {appointment.clientLastName}
+                        </p>
+                        <Badge
+                          variant="outline"
+                          className={APPOINTMENT_STATUS_COLORS[status]}
+                        >
+                          {APPOINTMENT_STATUS_LABELS[status]}
+                        </Badge>
+                      </div>
+                      {appointment.description && (
+                        <p className="text-sm text-gray-500">
+                          {appointment.description}
+                        </p>
+                      )}
+                    </div>
+
+                    <DeleteAppointmentButton appointmentId={appointment.id} />
+                  </div>
+                );
+              })
             )}
 
             <AddAppointmentForm listId={list.id} />
@@ -225,9 +315,14 @@ export default async function ListDetailPage({
           }))}
           appointments={list.appointments.map((appointment) => ({
             id: appointment.id,
+<<<<<<< HEAD
             clientLastName: appointment.clientLastName,
             clientFirstName: appointment.clientFirstName,
             formation: appointment.formation,
+=======
+            clientFirstName: appointment.clientFirstName,
+            clientLastName: appointment.clientLastName,
+>>>>>>> 36e9a0623db006bf4bd3336ac224cca748246e2a
             time: appointment.time,
             description: appointment.description,
             status: getAppointmentStatus(
