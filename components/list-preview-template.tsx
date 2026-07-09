@@ -24,7 +24,9 @@ export type PreviewAppointment = {
 function EmptySectionMessage({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-[160px] items-center justify-center text-center">
-      <p className="text-3xl font-bold text-[#b57edc]">{children}</p>
+      <p className="text-3xl font-bold text-[#b57edc] print:text-4xl">
+        {children}
+      </p>
     </div>
   );
 }
@@ -49,13 +51,13 @@ export default function ListPreviewTemplate({
   return (
     <div
       className={cn(
-        "print-grid relative overflow-hidden p-14 text-[#0b1b3a]",
+        "print-grid relative overflow-hidden p-14 text-[#0b1b3a] print:min-h-[289mm] print:p-12",
         className
       )}
     >
       <DecorativeFlower
         color="#b57edc"
-        className="absolute -top-6 -left-6 h-28 w-28 -rotate-[15deg] opacity-70"
+        className="absolute -top-6 -left-6 h-28 w-28 -rotate-[15deg] opacity-70 print:h-32 print:w-32"
       />
       <DecorativeFlower
         color="#e9ddf7"
@@ -63,27 +65,26 @@ export default function ListPreviewTemplate({
       />
       <DecorativeFlower
         color="#b57edc"
-        className="absolute -right-8 bottom-6 h-32 w-32 rotate-[12deg] opacity-60"
+        className="absolute -right-8 bottom-6 h-32 w-32 rotate-[12deg] opacity-60 print:h-36 print:w-36"
       />
 
       {/* Header */}
       <div className="relative text-center">
-        <h1 className="text-5xl font-extrabold text-[#0b1b3a]">
+        <h1 className="text-5xl font-extrabold text-[#0b1b3a] print:text-6xl">
           {title || "Nouvelle liste"}
         </h1>
         {formattedDate && (
-          <p className="mt-2 text-lg capitalize text-gray-500">
+          <p className="mt-2 text-lg capitalize text-gray-500 print:text-xl">
             {formattedDate}
           </p>
         )}
-        
       </div>
 
       {/* Tasks */}
-      <div className="relative mt-10 break-inside-avoid">
+      <div className="relative mt-10 break-inside-avoid print:mt-6">
         <h2 className="text-3xl font-extrabold text-[#b57edc]">Tâches</h2>
         {total > 0 ? (
-          <ul className="mt-3 space-y-4">
+          <ul className="mt-3 space-y-4 print:space-y-2">
             {tasks.map((task) => (
               <li
                 key={task.id}
@@ -102,7 +103,7 @@ export default function ListPreviewTemplate({
                 <div>
                   <p
                     className={cn(
-                      "text-lg font-semibold",
+                      "text-lg font-semibold print:text-xl",
                       task.isDone && "text-gray-400 line-through"
                     )}
                   >
@@ -112,7 +113,7 @@ export default function ListPreviewTemplate({
                     </span>
                   </p>
                   {task.description && (
-                    <p className="text-base text-gray-500">
+                    <p className="text-base text-gray-500 print:text-base">
                       {task.description}
                     </p>
                   )}
@@ -126,7 +127,7 @@ export default function ListPreviewTemplate({
       </div>
 
       {/* Rendez-vous */}
-      <div className="relative mt-10 break-inside-avoid">
+      <div className="relative mt-10 break-inside-avoid print:mt-6">
         <h2 className="text-3xl font-extrabold text-[#b57edc]">
           Rendez-vous
         </h2>
@@ -137,15 +138,15 @@ export default function ListPreviewTemplate({
                 key={appointment.id}
                 className="flex items-start gap-3 border-b border-dashed border-[#e5d6f3] pb-2"
               >
-                <span className="w-16 shrink-0 text-base font-semibold">
+                <span className="w-16 shrink-0 text-base font-semibold print:w-20 print:text-lg">
                   {appointment.time}
                 </span>
                 <div className="flex-1">
-                  <p className="text-lg font-medium">
+                  <p className="text-lg font-medium print:text-xl">
                     {appointment.clientLastName}{" "}
                     {appointment.clientFirstName}{" "}
                     {appointment.status && (
-                      <span className="text-sm font-normal text-gray-400">
+                      <span className="text-sm font-normal text-gray-400 print:hidden">
                         ({APPOINTMENT_STATUS_LABELS[appointment.status]})
                       </span>
                     )}
@@ -170,7 +171,7 @@ export default function ListPreviewTemplate({
       </div>
 
       {/* Bloc-notes */}
-      <div className="relative mt-10 break-inside-avoid rounded-xl border-2 border-dashed border-[#b57edc] bg-[#f8f3fc] p-4">
+      <div className="relative mt-10 break-inside-avoid rounded-xl border-2 border-dashed border-[#b57edc] bg-[#f8f3fc] p-4 print:mt-6">
         <h2 className="text-2xl font-extrabold text-[#b57edc]">Bloc-notes</h2>
         {note ? (
           <p className="mt-1 text-base whitespace-pre-wrap text-gray-700">
