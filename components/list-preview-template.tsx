@@ -74,7 +74,7 @@ export default function ListPreviewTemplate({
           {title || "Nouvelle liste"}
         </h1>
         {formattedDate && (
-          <p className="mt-2 text-lg capitalize text-gray-500 print:text-xl">
+          <p className="mt-2 text-lg capitalize text-gray-500 print:text-2xl">
             {formattedDate}
           </p>
         )}
@@ -92,7 +92,7 @@ export default function ListPreviewTemplate({
               >
                 <span
                   className={cn(
-                    "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 border-[#b57edc] text-xs font-bold",
+                    "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 border-[#b57edc] text-xs font-bold print:text-sm",
                     task.isDone
                       ? "bg-[#b57edc] text-white"
                       : "bg-white text-transparent"
@@ -103,17 +103,17 @@ export default function ListPreviewTemplate({
                 <div>
                   <p
                     className={cn(
-                      "text-lg font-semibold print:text-xl",
+                      "text-lg font-semibold print:text-2xl",
                       task.isDone && "text-gray-400 line-through"
                     )}
                   >
                     {PRIORITY_EMOJI[task.priority]} {task.title}{" "}
-                    <span className="text-sm font-normal text-gray-400">
+                    <span className="text-sm font-normal text-gray-400 print:hidden">
                       ({PRIORITY_LABELS[task.priority]})
                     </span>
                   </p>
                   {task.description && (
-                    <p className="text-base text-gray-500 print:text-base">
+                    <p className="text-base text-gray-500 print:text-lg">
                       {task.description}
                     </p>
                   )}
@@ -138,24 +138,26 @@ export default function ListPreviewTemplate({
                 key={appointment.id}
                 className="flex items-start gap-3 border-b border-dashed border-[#e5d6f3] pb-2"
               >
-                <span className="w-16 shrink-0 text-base font-semibold print:w-20 print:text-lg">
+                <span className="w-16 shrink-0 text-base font-semibold print:w-24 print:text-xl">
                   {appointment.time}
                 </span>
                 <div className="flex-1">
-                  <p className="text-lg font-medium print:text-xl">
-                    {appointment.clientLastName}{" "}
-                    {appointment.clientFirstName}{" "}
-                    {appointment.status && (
-                      <span className="text-sm font-normal text-gray-400 print:hidden">
-                        ({APPOINTMENT_STATUS_LABELS[appointment.status]})
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {appointment.formation}
-                  </p>
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+                    <p className="text-lg font-medium print:text-2xl">
+                      {appointment.clientLastName}{" "}
+                      {appointment.clientFirstName}{" "}
+                      {appointment.status && (
+                        <span className="text-sm font-normal text-gray-400 print:hidden">
+                          ({APPOINTMENT_STATUS_LABELS[appointment.status]})
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-sm text-gray-500 print:text-lg">
+                      {appointment.formation}
+                    </p>
+                  </div>
                   {appointment.description && (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 print:text-lg">
                       {appointment.description}
                     </p>
                   )}
@@ -174,7 +176,7 @@ export default function ListPreviewTemplate({
       <div className="relative mt-10 break-inside-avoid rounded-xl border-2 border-dashed border-[#b57edc] bg-[#f8f3fc] p-4 print:mt-6">
         <h2 className="text-2xl font-extrabold text-[#b57edc]">Bloc-notes</h2>
         {note ? (
-          <p className="mt-1 text-base whitespace-pre-wrap text-gray-700">
+          <p className="mt-1 text-base whitespace-pre-wrap text-gray-700 print:text-xl">
             {note}
           </p>
         ) : (
