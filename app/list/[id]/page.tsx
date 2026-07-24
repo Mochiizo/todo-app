@@ -83,15 +83,15 @@ export default async function ListDetailPage({
         </div>
 
         <div>
-          <h1 className="text-3xl font-bold">{list.title}</h1>
+          <h1 className="font-heading text-3xl font-bold">{list.title}</h1>
           <p className="text-white/70 capitalize">
             {formatDateFr(list.date)}
           </p>
         </div>
 
-        <Card className="bg-white text-[#0b1b3a] border-none">
+        <Card className="bg-[#fdfbf5] text-[#0b1b3a] border-none">
           <CardHeader>
-            <CardTitle>Progression</CardTitle>
+            <CardTitle className="font-heading">Progression</CardTitle>
           </CardHeader>
           <CardContent>
             <Progress
@@ -104,9 +104,9 @@ export default async function ListDetailPage({
           </CardContent>
         </Card>
 
-        <Card className="bg-white text-[#0b1b3a] border-none">
+        <Card className="bg-[#fdfbf5] text-[#0b1b3a] border-none">
           <CardHeader>
-            <CardTitle>Tâches</CardTitle>
+            <CardTitle className="font-heading">Tâches</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="space-y-1">
@@ -135,9 +135,9 @@ export default async function ListDetailPage({
           </CardContent>
         </Card>
 
-        <Card className="bg-white text-[#0b1b3a] border-none">
+        <Card className="bg-[#fdfbf5] text-[#0b1b3a] border-none">
           <CardHeader>
-            <CardTitle>Bloc-notes</CardTitle>
+            <CardTitle className="font-heading">Bloc-notes</CardTitle>
           </CardHeader>
           <CardContent>
             <ListNoteEditor
@@ -151,9 +151,9 @@ export default async function ListDetailPage({
           </CardContent>
         </Card>
 
-        <Card className="bg-white text-[#0b1b3a] border-none">
+        <Card className="bg-[#fdfbf5] text-[#0b1b3a] border-none">
           <CardHeader>
-            <CardTitle>Rendez-vous</CardTitle>
+            <CardTitle className="font-heading">Rendez-vous</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {list.appointments.length === 0 ? (

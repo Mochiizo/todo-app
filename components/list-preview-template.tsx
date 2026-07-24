@@ -54,6 +54,10 @@ export default function ListPreviewTemplate({
         "print-grid relative overflow-hidden p-14 text-[#0b1b3a] print:min-h-[289mm] print:p-12",
         className
       )}
+      style={{
+        fontFamily:
+          'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
+      }}
     >
       <DecorativeFlower
         color="#b57edc"

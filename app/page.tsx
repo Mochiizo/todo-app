@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import TaskItem from "@/components/task-item";
 import DeleteAppointmentButton from "@/components/delete-appointment-button";
 import NoteCardActions from "@/components/note-card-actions";
+import DecorativeFlower from "@/components/decorative-flower";
 import {
   ListTodo,
   CheckCircle2,
@@ -78,10 +79,16 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-[#0b1b3a] text-white p-8 space-y-8">
       {/* HEADER */}
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
+      <div className="relative flex flex-wrap items-end justify-between gap-4">
+        <DecorativeFlower
+          color="#b57edc"
+          className="pointer-events-none absolute -top-10 left-40 h-24 w-24 rotate-[15deg] opacity-20 sm:left-56"
+        />
+        <div className="relative">
           <p className="text-white/60 text-sm">{formattedDate}</p>
-          <h1 className="mt-1 text-4xl font-semibold">Bonjour 👋</h1>
+          <h1 className="font-heading mt-1 text-4xl font-semibold">
+            Bonjour 👋
+          </h1>
         </div>
 
         <Button asChild className="bg-[#b57edc] hover:bg-[#9b5fc9] text-white">
@@ -109,9 +116,9 @@ export default async function Home() {
       </div>
 
       {/* PROGRESS */}
-      <Card className="bg-white text-[#0b1b3a] border-none">
+      <Card className="bg-[#fdfbf5] text-[#0b1b3a] border-none">
         <CardHeader>
-          <CardTitle>Progression globale</CardTitle>
+          <CardTitle className="font-heading">Progression globale</CardTitle>
         </CardHeader>
 
         <CardContent>
@@ -126,9 +133,9 @@ export default async function Home() {
       {/* RENDEZ-VOUS + AUJOURD'HUI */}
       <div className="grid gap-4 lg:grid-cols-2">
         {/* RENDEZ-VOUS DU JOUR */}
-        <Card className="bg-white text-[#0b1b3a] border-none">
+        <Card className="bg-[#fdfbf5] text-[#0b1b3a] border-none">
           <CardHeader>
-            <CardTitle>Rendez-vous du jour</CardTitle>
+            <CardTitle className="font-heading">Rendez-vous du jour</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {appointments.length === 0 ? (
@@ -189,9 +196,9 @@ export default async function Home() {
         </Card>
 
         {/* TODAY LISTS */}
-        <Card className="bg-white text-[#0b1b3a] border-none">
+        <Card className="bg-[#fdfbf5] text-[#0b1b3a] border-none">
           <CardHeader>
-            <CardTitle>Aujourd&apos;hui</CardTitle>
+            <CardTitle className="font-heading">Aujourd&apos;hui</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {todayLists.length === 0 ? (
@@ -227,13 +234,13 @@ export default async function Home() {
 
       {/* BLOC-NOTES */}
       <div>
-        <h2 className="mb-4 flex items-center gap-2 text-2xl font-semibold">
+        <h2 className="font-heading mb-4 flex items-center gap-2 text-2xl font-semibold">
           <StickyNote className="h-5 w-5" />
           Notes
         </h2>
 
         {notesList.length === 0 ? (
-          <Card className="bg-white text-[#0b1b3a] border-none">
+          <Card className="bg-[#fdfbf5] text-[#0b1b3a] border-none">
             <CardContent className="py-10 text-center text-gray-500">
               Aucune note pour le moment. Ajoutez-en une depuis une liste.
             </CardContent>
@@ -243,7 +250,7 @@ export default async function Home() {
             {notesList.map((list) => (
               <Card
                 key={list.id}
-                className="h-fit min-w-0 bg-white text-[#0b1b3a] border-none"
+                className="h-fit min-w-0 bg-[#fdfbf5] text-[#0b1b3a] border-none transition-shadow hover:shadow-md"
               >
                 <CardHeader className="flex flex-row items-start justify-between gap-2">
                   <Link
@@ -288,7 +295,7 @@ function StatCard({
   value: React.ReactNode;
 }) {
   return (
-    <Card className="bg-white text-[#0b1b3a] border-none">
+    <Card className="bg-[#fdfbf5] text-[#0b1b3a] border-none">
       <CardContent className="py-5">
         <div className="flex items-center gap-2 text-sm text-gray-500">
           {icon}

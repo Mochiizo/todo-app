@@ -1,17 +1,24 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Baloo_2, Nunito } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import AppShell from "@/components/app-shell";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const baloo2 = Baloo_2({
+  variable: "--font-baloo",
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
+});
+
+const nunito = Nunito({
+  variable: "--font-nunito",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -27,9 +34,9 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${nunito.variable} ${geistMono.variable} ${baloo2.variable} h-full antialiased`}
     >
-      <body className="min-h-full">
+      <body className="min-h-full bg-[#0b1b3a]">
         <AppShell>{children}</AppShell>
         <Toaster richColors position="top-right" />
       </body>

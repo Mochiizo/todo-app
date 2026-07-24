@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,8 @@ import { Plus, X, Undo2 } from "lucide-react";
 import { todayISO, formatDateFr } from "@/lib/date";
 import PrioritySelect from "@/components/priority-select";
 import ListPreviewTemplate from "@/components/list-preview-template";
-import type { Priority } from "@/lib/priority";
+import DecorativeFlower from "@/components/decorative-flower";
+import { PRIORITY_EMOJI, type Priority } from "@/lib/priority";
 
 type TaskDraft = {
   title: string;
@@ -27,6 +28,19 @@ type AppointmentDraft = {
   description: string;
 };
 
+const emptyTaskDraft: TaskDraft = {
+  title: "",
+  description: "",
+  priority: "MEDIUM",
+};
+const emptyAppointmentDraft: AppointmentDraft = {
+  lastName: "",
+  firstName: "",
+  formation: "",
+  time: "",
+  description: "",
+};
+
 export default function NewListForm({
   initialTasks,
   initialDate,
@@ -38,60 +52,56 @@ export default function NewListForm({
   const [title, setTitle] = useState("");
   const [date, setDate] = useState(initialDate ?? todayISO());
   const [note, setNote] = useState("");
-  const [tasks, setTasks] = useState<TaskDraft[]>(
-    initialTasks && initialTasks.length > 0
-      ? initialTasks
-      : [{ title: "", description: "", priority: "MEDIUM" }]
-  );
+  const [tasks, setTasks] = useState<TaskDraft[]>(initialTasks ?? []);
+  const [taskDraft, setTaskDraft] = useState<TaskDraft>(emptyTaskDraft);
   const [appointments, setAppointments] = useState<AppointmentDraft[]>([]);
+  const [appointmentDraft, setAppointmentDraft] = useState<AppointmentDraft>(
+    emptyAppointmentDraft
+  );
   const [submitting, setSubmitting] = useState(false);
 
-  const addTask = () => {
-    setTasks([...tasks, { title: "", description: "", priority: "MEDIUM" }]);
+  const commitTaskDraft = () => {
+    if (!taskDraft.title.trim()) return;
+    setTasks([...tasks, taskDraft]);
+    setTaskDraft(emptyTaskDraft);
   };
 
   const removeTask = (index: number) => {
     setTasks(tasks.filter((_, i) => i !== index));
   };
 
-  const updateTask = (
-    index: number,
-    field: "title" | "description",
-    value: string
-  ) => {
-    setTasks(
-      tasks.map((t, i) => (i === index ? { ...t, [field]: value } : t))
-    );
+  const handleTaskTitleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      commitTaskDraft();
+    }
   };
 
-  const updateTaskPriority = (index: number, priority: Priority) => {
-    setTasks(tasks.map((t, i) => (i === index ? { ...t, priority } : t)));
-  };
+  const isAppointmentDraftValid = (a: AppointmentDraft) =>
+    Boolean(a.lastName.trim() && a.firstName.trim() && a.formation.trim() && a.time);
 
-  const addAppointment = () => {
-    setAppointments([
-      ...appointments,
-      { lastName: "", firstName: "", formation: "", time: "", description: "" },
-    ]);
+  const commitAppointmentDraft = () => {
+    if (!isAppointmentDraftValid(appointmentDraft)) return;
+    setAppointments([...appointments, appointmentDraft]);
+    setAppointmentDraft(emptyAppointmentDraft);
   };
 
   const removeAppointment = (index: number) => {
     setAppointments(appointments.filter((_, i) => i !== index));
   };
 
-  const updateAppointment = (
-    index: number,
-    field: keyof AppointmentDraft,
-    value: string
-  ) => {
-    setAppointments(
-      appointments.map((a, i) => (i === index ? { ...a, [field]: value } : a))
-    );
-  };
+  const pendingTask = taskDraft.title.trim() ? taskDraft : null;
+  const pendingAppointment = isAppointmentDraftValid(appointmentDraft)
+    ? appointmentDraft
+    : null;
 
-  const hasValidTask = tasks.some((t) => t.title.trim());
-  const canSubmit =
-    Boolean(title.trim()) && Boolean(date) && hasValidTask && !submitting;
+  const allTasks = pendingTask ? [...tasks, pendingTask] : tasks;
+  const allAppointments = pendingAppointment
+    ? [...appointments, pendingAppointment]
+    : appointments;
+
+  const hasValidTask = allTasks.some((t) => t.title.trim());
+  const canSubmit = Boolean(title.trim()) && Boolean(date) && hasValidTask && !submitting;
 
   const handleSubmit = async () => {
     if (!title.trim()) {
@@ -116,18 +126,15 @@ export default function NewListForm({
         title: title.trim(),
         date,
         note: note.trim(),
-        tasks: tasks
+        tasks: allTasks
           .filter((t) => t.title.trim())
           .map((t) => ({
             title: t.title.trim(),
             description: t.description.trim(),
             priority: t.priority,
           })),
-        appointments: appointments
-          .filter(
-            (a) =>
-              a.lastName.trim() && a.firstName.trim() && a.formation.trim() && a.time
-          )
+        appointments: allAppointments
+          .filter(isAppointmentDraftValid)
           .map((a) => ({
             clientLastName: a.lastName.trim(),
             clientFirstName: a.firstName.trim(),
@@ -149,7 +156,7 @@ export default function NewListForm({
     router.push("/history");
   };
 
-  const previewTasks = tasks
+  const previewTasks = allTasks
     .filter((t) => t.title.trim())
     .map((t, index) => ({
       id: index,
@@ -158,10 +165,8 @@ export default function NewListForm({
       priority: t.priority,
     }));
 
-  const previewAppointments = appointments
-    .filter(
-      (a) => a.lastName.trim() && a.firstName.trim() && a.formation.trim() && a.time
-    )
+  const previewAppointments = allAppointments
+    .filter(isAppointmentDraftValid)
     .map((a, index) => ({
       id: index,
       clientLastName: a.lastName,
@@ -176,18 +181,26 @@ export default function NewListForm({
       <div className="grid gap-8 lg:grid-cols-[1fr_420px]">
         <div className="space-y-8">
           {/* Header */}
-          <div>
-            <h1 className="text-3xl font-bold text-white">Nouvelle liste</h1>
-            <p className="text-white/70">
+          <div className="relative">
+            <DecorativeFlower
+              color="#b57edc"
+              className="pointer-events-none absolute -top-8 left-48 h-20 w-20 rotate-[10deg] opacity-20"
+            />
+            <h1 className="font-heading relative text-3xl font-bold text-white">
+              Nouvelle liste
+            </h1>
+            <p className="relative text-white/70">
               Créez votre liste puis retrouvez-la dans l&apos;historique ou le
               tableau de bord.
             </p>
           </div>
 
           {/* Informations */}
-          <Card className="rounded-2xl shadow-sm bg-white text-[#0b1b3a] border-none">
+          <Card className="rounded-2xl shadow-sm bg-[#fdfbf5] text-[#0b1b3a] border-none">
             <CardHeader>
-              <CardTitle className="text-[#0b1b3a]">Informations</CardTitle>
+              <CardTitle className="font-heading text-[#0b1b3a]">
+                Informations
+              </CardTitle>
             </CardHeader>
 
             <CardContent className="grid md:grid-cols-2 gap-6">
@@ -214,84 +227,82 @@ export default function NewListForm({
           </Card>
 
           {/* Tasks */}
-          <Card className="rounded-2xl shadow-sm bg-white text-[#0b1b3a] border-none">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-[#0b1b3a]">Tâches</CardTitle>
+          <Card className="rounded-2xl shadow-sm bg-[#fdfbf5] text-[#0b1b3a] border-none">
+            <CardHeader>
+              <CardTitle className="font-heading text-[#0b1b3a]">
+                Tâches
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent className="space-y-4">
+              {tasks.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {tasks.map((task, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-[#f5effc] py-1 pr-2 pl-3 text-sm text-[#0b1b3a]"
+                    >
+                      {PRIORITY_EMOJI[task.priority]} {task.title}
+                      {task.carriedOver && (
+                        <Undo2 className="h-3 w-3 text-[#b57edc]" />
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeTask(index)}
+                        className="text-gray-400 hover:text-red-500"
+                        aria-label="Supprimer la tâche"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex items-center gap-2">
+                <Input
+                  placeholder="Titre de la tâche"
+                  value={taskDraft.title}
+                  onKeyDown={handleTaskTitleKeyDown}
+                  onChange={(e) =>
+                    setTaskDraft({ ...taskDraft, title: e.target.value })
+                  }
+                  className="border-[#b57edc] focus:ring-[#b57edc]"
+                />
+                <PrioritySelect
+                  value={taskDraft.priority}
+                  onChange={(priority) =>
+                    setTaskDraft({ ...taskDraft, priority })
+                  }
+                />
+              </div>
+
+              <Input
+                placeholder="Description (optionnel)"
+                value={taskDraft.description}
+                onKeyDown={handleTaskTitleKeyDown}
+                onChange={(e) =>
+                  setTaskDraft({ ...taskDraft, description: e.target.value })
+                }
+                className="border-[#b57edc] focus:ring-[#b57edc]"
+              />
 
               <Button
-                onClick={addTask}
-                className="bg-[#b57edc] hover:bg-[#9b5fc9] text-white"
+                onClick={commitTaskDraft}
+                disabled={!taskDraft.title.trim()}
+                className="bg-[#b57edc] hover:bg-[#9b5fc9] text-white disabled:opacity-50"
                 size="sm"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Ajouter
+                Ajouter la tâche
               </Button>
-            </CardHeader>
-
-            <CardContent className="space-y-6">
-              {tasks.map((task, index) => (
-                <div
-                  key={index}
-                  className="p-4 border border-[#e5d6f3] rounded-xl space-y-3"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium text-[#0b1b3a]">
-                        Tâche {index + 1}
-                      </p>
-                      {task.carriedOver && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-[#f5effc] px-2 py-0.5 text-xs font-medium text-[#b57edc]">
-                          <Undo2 className="h-3 w-3" />
-                          Reporté d&apos;hier
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <PrioritySelect
-                        value={task.priority}
-                        onChange={(priority) =>
-                          updateTaskPriority(index, priority)
-                        }
-                      />
-
-                      {tasks.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeTask(index)}
-                          className="text-gray-400 hover:text-red-500"
-                          aria-label="Supprimer la tâche"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  <Input
-                    placeholder="Titre de la tâche"
-                    value={task.title}
-                    onChange={(e) => updateTask(index, "title", e.target.value)}
-                    className="border-[#b57edc] focus:ring-[#b57edc]"
-                  />
-
-                  <Textarea
-                    placeholder="Description (optionnel)"
-                    value={task.description}
-                    onChange={(e) =>
-                      updateTask(index, "description", e.target.value)
-                    }
-                    className="border-[#b57edc] focus:ring-[#b57edc]"
-                  />
-                </div>
-              ))}
             </CardContent>
           </Card>
 
           {/* Bloc-notes */}
-          <Card className="rounded-2xl shadow-sm bg-white text-[#0b1b3a] border-none">
+          <Card className="rounded-2xl shadow-sm bg-[#fdfbf5] text-[#0b1b3a] border-none">
             <CardHeader>
-              <CardTitle className="text-[#0b1b3a]">
+              <CardTitle className="font-heading text-[#0b1b3a]">
                 Bloc-notes (optionnel)
               </CardTitle>
             </CardHeader>
@@ -306,91 +317,105 @@ export default function NewListForm({
           </Card>
 
           {/* Rendez-vous */}
-          <Card className="rounded-2xl shadow-sm bg-white text-[#0b1b3a] border-none">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-[#0b1b3a]">
+          <Card className="rounded-2xl shadow-sm bg-[#fdfbf5] text-[#0b1b3a] border-none">
+            <CardHeader>
+              <CardTitle className="font-heading text-[#0b1b3a]">
                 Rendez-vous (optionnel)
               </CardTitle>
-
-              <Button
-                onClick={addAppointment}
-                className="bg-[#b57edc] hover:bg-[#9b5fc9] text-white"
-                size="sm"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Ajouter
-              </Button>
             </CardHeader>
 
-            {appointments.length > 0 && (
-              <CardContent className="space-y-6">
-                {appointments.map((appointment, index) => (
-                  <div
-                    key={index}
-                    className="p-4 border border-[#e5d6f3] rounded-xl space-y-3"
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="font-medium text-[#0b1b3a]">
-                        Rendez-vous {index + 1}
-                      </p>
-
+            <CardContent className="space-y-4">
+              {appointments.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {appointments.map((appointment, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-[#f5effc] py-1 pr-2 pl-3 text-sm text-[#0b1b3a]"
+                    >
+                      {appointment.time} · {appointment.lastName}{" "}
+                      {appointment.firstName}
                       <button
                         type="button"
                         onClick={() => removeAppointment(index)}
                         className="text-gray-400 hover:text-red-500"
                         aria-label="Supprimer le rendez-vous"
                       >
-                        <X className="w-4 h-4" />
+                        <X className="h-3 w-3" />
                       </button>
-                    </div>
+                    </span>
+                  ))}
+                </div>
+              )}
 
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <Input
-                        placeholder="Nom du client"
-                        value={appointment.lastName}
-                        onChange={(e) =>
-                          updateAppointment(index, "lastName", e.target.value)
-                        }
-                        className="border-[#b57edc] focus:ring-[#b57edc]"
-                      />
-                      <Input
-                        placeholder="Prénom du client"
-                        value={appointment.firstName}
-                        onChange={(e) =>
-                          updateAppointment(index, "firstName", e.target.value)
-                        }
-                        className="border-[#b57edc] focus:ring-[#b57edc]"
-                      />
-                      <Input
-                        placeholder="Formation"
-                        value={appointment.formation}
-                        onChange={(e) =>
-                          updateAppointment(index, "formation", e.target.value)
-                        }
-                        className="border-[#b57edc] focus:ring-[#b57edc]"
-                      />
-                      <Input
-                        type="time"
-                        value={appointment.time}
-                        onChange={(e) =>
-                          updateAppointment(index, "time", e.target.value)
-                        }
-                        className="border-[#b57edc] focus:ring-[#b57edc]"
-                      />
-                    </div>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <Input
+                  placeholder="Nom du client"
+                  value={appointmentDraft.lastName}
+                  onChange={(e) =>
+                    setAppointmentDraft({
+                      ...appointmentDraft,
+                      lastName: e.target.value,
+                    })
+                  }
+                  className="border-[#b57edc] focus:ring-[#b57edc]"
+                />
+                <Input
+                  placeholder="Prénom du client"
+                  value={appointmentDraft.firstName}
+                  onChange={(e) =>
+                    setAppointmentDraft({
+                      ...appointmentDraft,
+                      firstName: e.target.value,
+                    })
+                  }
+                  className="border-[#b57edc] focus:ring-[#b57edc]"
+                />
+                <Input
+                  placeholder="Formation"
+                  value={appointmentDraft.formation}
+                  onChange={(e) =>
+                    setAppointmentDraft({
+                      ...appointmentDraft,
+                      formation: e.target.value,
+                    })
+                  }
+                  className="border-[#b57edc] focus:ring-[#b57edc]"
+                />
+                <Input
+                  type="time"
+                  value={appointmentDraft.time}
+                  onChange={(e) =>
+                    setAppointmentDraft({
+                      ...appointmentDraft,
+                      time: e.target.value,
+                    })
+                  }
+                  className="border-[#b57edc] focus:ring-[#b57edc]"
+                />
+              </div>
 
-                    <Textarea
-                      placeholder="Description (optionnel)"
-                      value={appointment.description}
-                      onChange={(e) =>
-                        updateAppointment(index, "description", e.target.value)
-                      }
-                      className="border-[#b57edc] focus:ring-[#b57edc]"
-                    />
-                  </div>
-                ))}
-              </CardContent>
-            )}
+              <Input
+                placeholder="Description (optionnel)"
+                value={appointmentDraft.description}
+                onChange={(e) =>
+                  setAppointmentDraft({
+                    ...appointmentDraft,
+                    description: e.target.value,
+                  })
+                }
+                className="border-[#b57edc] focus:ring-[#b57edc]"
+              />
+
+              <Button
+                onClick={commitAppointmentDraft}
+                disabled={!isAppointmentDraftValid(appointmentDraft)}
+                className="bg-[#b57edc] hover:bg-[#9b5fc9] text-white disabled:opacity-50"
+                size="sm"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Ajouter le rendez-vous
+              </Button>
+            </CardContent>
           </Card>
 
           {/* Submit */}
@@ -407,7 +432,9 @@ export default function NewListForm({
 
         {/* Live preview */}
         <div className="lg:sticky lg:top-8 lg:self-start">
-          <p className="mb-3 text-sm font-medium text-white/70">Aperçu</p>
+          <p className="font-heading mb-3 text-sm font-medium text-white/70">
+            Aperçu
+          </p>
           <div className="overflow-hidden rounded-2xl shadow-lg">
             <ListPreviewTemplate
               title={title}

@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
+import DecorativeFlower from "@/components/decorative-flower";
 import {
   Sidebar,
   SidebarContent,
@@ -51,14 +52,18 @@ export default function AppSidebar() {
     <Sidebar className="border-r border-white/10">
 
       {/* Header */}
-      <SidebarHeader className="p-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#b57edc] text-white shadow-md">
+      <SidebarHeader className="relative overflow-hidden p-6">
+        <DecorativeFlower
+          color="#b57edc"
+          className="pointer-events-none absolute -top-8 -right-8 h-28 w-28 rotate-[20deg] opacity-20"
+        />
+        <div className="relative flex items-center gap-3">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#b57edc] text-white shadow-md">
             <CheckSquare className="h-7 w-7" />
           </div>
 
           <div>
-            <h1 className="text-2xl font-bold tracking-wide">
+            <h1 className="font-heading text-2xl font-bold tracking-wide">
               Tâchable
             </h1>
             <p className="text-sm text-white/70">
@@ -80,12 +85,12 @@ export default function AppSidebar() {
                 <SidebarMenuButton
                   onClick={() => router.push(item.path)}
                   className={`
-                    flex items-center gap-3 h-12 rounded-xl text-base p-3
-                    transition-all
+                    flex items-center gap-3 h-12 rounded-2xl text-base p-3
+                    transition-all duration-200
                     ${
                       isActive
                         ? "bg-[#b57edc] text-white shadow-md"
-                        : "text-white/80 hover:bg-white/10 hover:text-white"
+                        : "text-white/80 hover:translate-x-0.5 hover:bg-white/10 hover:text-white"
                     }
                   `}
                 >

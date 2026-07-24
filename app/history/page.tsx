@@ -24,12 +24,12 @@ export default async function HistoryPage() {
   return (
     <div className="min-h-screen bg-[#0b1b3a] text-white p-8 space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">Historique</h1>
+        <h1 className="font-heading text-3xl font-bold">Historique</h1>
         <p className="text-white/70">Toutes vos listes, triées par date.</p>
       </div>
 
       {lists.length === 0 ? (
-        <Card className="bg-white text-[#0b1b3a] border-none">
+        <Card className="bg-[#fdfbf5] text-[#0b1b3a] border-none">
           <CardContent className="py-10 text-center text-gray-500">
             Aucune liste pour le moment.
           </CardContent>
@@ -43,11 +43,13 @@ export default async function HistoryPage() {
             return (
               <Card
                 key={list.id}
-                className="bg-white text-[#0b1b3a] border-none"
+                className="bg-[#fdfbf5] text-[#0b1b3a] border-none transition-shadow hover:shadow-md"
               >
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
-                    <CardTitle className="text-base">{list.title}</CardTitle>
+                    <CardTitle className="font-heading text-base">
+                      {list.title}
+                    </CardTitle>
                     <p className="text-sm text-gray-500 capitalize">
                       {formatDateFr(list.date)}
                     </p>
