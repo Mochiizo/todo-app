@@ -22,7 +22,7 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "Tâchable",
+  title: "TaskFlow",
   description: "Gestion de listes de tâches",
 };
 

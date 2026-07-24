@@ -64,7 +64,7 @@ export default function AppSidebar() {
 
           <div>
             <h1 className="font-heading text-2xl font-bold tracking-wide">
-              Tâchable
+              TaskFlow
             </h1>
             <p className="text-sm text-white/70">
               Vos listes, organisées

@@ -35,7 +35,7 @@ export default function LoginPage() {
           </div>
 
           <h1 className="font-heading mt-5 text-3xl font-extrabold">
-            Tâchable
+            TaskFlow
           </h1>
           <p className="mt-2 text-sm text-gray-500">
             Vos listes, vos rendez-vous et vos notes, réunis dans un seul
